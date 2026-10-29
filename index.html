@@ -1,0 +1,179 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="theme-color" content="#6739b7">
+  <meta name="description" content="PayDemo - A demo payment app for practice">
+  <title>PayDemo - Demo Payments</title>
+  <link rel="stylesheet" href="style.css">
+  <link rel="manifest" href="manifest.json">
+</head>
+<body>
+
+  <header class="topbar">
+    <div class="brand">
+      <span class="logo">P</span>
+      <span>PayDemo</span>
+    </div>
+    <button class="profile-btn" onclick="showPage('profile')">👤</button>
+  </header>
+
+  <main>
+    <!-- HOME -->
+    <section id="home" class="page active">
+      <div class="demo-banner">DEMO APP • NO REAL MONEY</div>
+
+      <div class="balance-card">
+        <p>Demo Wallet Balance</p>
+        <h1 id="balance">₹10,000</h1>
+        <small>Practice transactions only</small>
+      </div>
+
+      <div class="section-heading">Money Transfers</div>
+      <div class="action-grid">
+        <button class="action" onclick="showPage('send')">
+          <span>👤</span>To Mobile
+        </button>
+        <button class="action" onclick="showPage('qr')">
+          <span>▦</span>Scan QR
+        </button>
+        <button class="action" onclick="showPage('send')">
+          <span>🏦</span>Bank Transfer
+        </button>
+        <button class="action" onclick="showPage('history')">
+          <span>📜</span>History
+        </button>
+      </div>
+
+      <div class="section-heading">Recharge & Bills</div>
+      <div class="action-grid">
+        <button class="action" onclick="showPage('recharge')">
+          <span>📱</span>Mobile Recharge
+        </button>
+        <button class="action" onclick="showPage('recharge')">
+          <span>💡</span>Electricity
+        </button>
+        <button class="action" onclick="showPage('recharge')">
+          <span>📺</span>DTH
+        </button>
+        <button class="action" onclick="showPage('recharge')">
+          <span>🌐</span>Internet
+        </button>
+      </div>
+
+      <div class="section-heading">Recent Transactions</div>
+      <div id="recentTransactions" class="transaction-list">
+        <p class="empty">No transactions yet.</p>
+      </div>
+    </section>
+
+    <!-- SEND MONEY -->
+    <section id="send" class="page">
+      <button class="back-btn" onclick="showPage('home')">← Back</button>
+      <h2>Send Demo Money</h2>
+      <p class="muted">This will only change your demo balance.</p>
+
+      <form id="sendForm">
+        <label for="receiver">Receiver Name</label>
+        <input id="receiver" type="text" placeholder="Enter name" required>
+
+        <label for="mobile">Mobile Number</label>
+        <input id="mobile" type="tel" inputmode="numeric"
+          placeholder="10-digit number" pattern="[0-9]{10}" required>
+
+        <label for="amount">Amount (₹)</label>
+        <input id="amount" type="number" min="1" max="10000"
+          placeholder="Enter amount" required>
+
+        <button class="primary-btn" type="submit">Pay Demo Amount</button>
+      </form>
+      <p class="notice">Demo only. No real UPI or bank transfer.</p>
+    </section>
+
+    <!-- QR -->
+    <section id="qr" class="page">
+      <button class="back-btn" onclick="showPage('home')">← Back</button>
+      <h2>Demo QR Scanner</h2>
+      <div class="qr-box">▦</div>
+      <p class="muted">QR scanning is not connected to real payments.</p>
+      <button class="primary-btn" onclick="showPage('send')">
+        Try Demo Payment
+      </button>
+    </section>
+
+    <!-- HISTORY -->
+    <section id="history" class="page">
+      <button class="back-btn" onclick="showPage('home')">← Back</button>
+      <h2>Transaction History</h2>
+      <div id="allTransactions" class="transaction-list">
+        <p class="empty">No transactions yet.</p>
+      </div>
+    </section>
+
+    <!-- RECHARGE -->
+    <section id="recharge" class="page">
+      <button class="back-btn" onclick="showPage('home')">← Back</button>
+      <h2>Demo Recharge & Bills</h2>
+      <p class="muted">Choose a service to simulate a transaction.</p>
+
+      <label for="service">Select Service</label>
+      <select id="service">
+        <option>Mobile Recharge</option>
+        <option>Electricity Bill</option>
+        <option>DTH Recharge</option>
+        <option>Internet Bill</option>
+      </select>
+
+      <label for="billAmount">Amount (₹)</label>
+      <input id="billAmount" type="number" min="1" max="10000"
+        placeholder="Enter amount">
+
+      <button class="primary-btn" onclick="demoRecharge()">
+        Pay Demo Bill
+      </button>
+    </section>
+
+    <!-- PROFILE -->
+    <section id="profile" class="page">
+      <button class="back-btn" onclick="showPage('home')">← Back</button>
+      <h2>My Profile</h2>
+      <div class="profile-card">
+        <div class="avatar">👤</div>
+        <h3>PayDemo User</h3>
+        <p class="muted">Demo account</p>
+      </div>
+      <div class="menu-item">💜 App: PayDemo</div>
+      <div class="menu-item">🔒 Real payments: Disabled</div>
+      <button class="secondary-btn" onclick="resetDemo()">
+        Reset Demo Data
+      </button>
+    </section>
+  </main>
+
+  <!-- BOTTOM NAVIGATION -->
+  <nav class="bottom-nav">
+    <button class="nav-item active" data-page="home"
+      onclick="showPage('home')">🏠<span>Home</span></button>
+    <button class="nav-item" data-page="send"
+      onclick="showPage('send')">💸<span>Pay</span></button>
+    <button class="nav-item" data-page="history"
+      onclick="showPage('history')">📜<span>History</span></button>
+    <button class="nav-item" data-page="profile"
+      onclick="showPage('profile')">👤<span>Profile</span></button>
+  </nav>
+
+  <div id="toast" class="toast" role="status"></div>
+
+  <script src="script.js"></script>
+  <script>
+    if ("serviceWorker" in navigator && location.protocol.startsWith("http")) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker.register("./service-worker.js")
+          .catch(() => {});
+      });
+    }
+  </script>
+</body>
+</html>
