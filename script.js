@@ -1,162 +1,248 @@
 
 const STARTING_BALANCE = 10000;
+const DEMO_PIN = "1234";
 
 let balance = STARTING_BALANCE;
 let transactions = [];
+let pendingPayment = null;
+let scanning = false;
+let cameraStream = null;
+let scanFrame = null;
 
-function showPage(pageId) {
-  document.querySelectorAll(".page").forEach(page => {
-    page.classList.toggle("active", page.id === pageId);
-  });
+function showPage(id) {
+  if (id !== "qr") stopScanner();
 
-  document.querySelectorAll(".nav-item").forEach(button => {
-    button.classList.toggle(
-      "active",
-      button.dataset.page === pageId
-    );
-  });
+  document.querySelectorAll(".page").forEach(p =>
+    p.classList.toggle("active", p.id === id)
+  );
 
-  window.scrollTo({ top: 0, behavior: "smooth" });
+  document.querySelectorAll(".nav-item").forEach(b =>
+    b.classList.toggle("active", b.dataset.page === id)
+  );
+
   renderTransactions();
+  window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
 function showToast(message) {
-  const toast = document.getElementById("toast");
-  toast.textContent = message;
-  toast.style.display = "block";
-
+  const el = document.getElementById("toast");
+  el.textContent = message;
+  el.style.display = "block";
   clearTimeout(showToast.timer);
-  showToast.timer = setTimeout(() => {
-    toast.style.display = "none";
-  }, 2500);
+  showToast.timer = setTimeout(() => el.style.display = "none", 2800);
 }
 
-function formatMoney(amount) {
-  return "₹" + Number(amount).toLocaleString("en-IN", {
-    maximumFractionDigits: 2
-  });
-}
-
-function addTransaction(title, amount, type) {
-  transactions.unshift({
-    id: Date.now(),
-    title,
-    amount,
-    type,
-    date: new Date().toLocaleString("en-IN"),
-    status: "Demo Successful"
-  });
-
-  balance -= amount;
-  updateBalance();
-  renderTransactions();
-}
-
-function updateBalance() {
-  document.getElementById("balance").textContent =
-    formatMoney(balance);
-}
-
-function renderTransactions() {
-  const recent = document.getElementById("recentTransactions");
-  const all = document.getElementById("allTransactions");
-
-  function transactionHTML(tx) {
-    const sign = tx.type === "credit" ? "+" : "-";
-    const amountClass = tx.type === "credit" ? "credit" : "debit";
-
-    return `
-      <div class="transaction">
-        <div class="tx-info">
-          <strong>${escapeHTML(tx.title)}</strong>
-          <small>${escapeHTML(tx.date)} · ${tx.status}</small>
-        </div>
-        <div class="tx-amount ${amountClass}">
-          ${sign}${formatMoney(tx.amount)}
-        </div>
-      </div>
-    `;
-  }
-
-  recent.innerHTML = transactions.length
-    ? transactions.slice(0, 3).map(transactionHTML).join("")
-    : '<p class="empty">No transactions yet.</p>';
-
-  all.innerHTML = transactions.length
-    ? transactions.map(transactionHTML).join("")
-    : '<p class="empty">No transactions yet.</p>';
+function money(n) {
+  return "₹" + n.toLocaleString("en-IN");
 }
 
 function escapeHTML(value) {
-  return String(value).replace(/[&<>"']/g, char => ({
-    "&": "&amp;",
-    "<": "&lt;",
-    ">": "&gt;",
-    '"': "&quot;",
-    "'": "&#39;"
-  })[char]);
+  return String(value).replace(/[&<>"']/g, c => ({
+    "&": "&amp;", "<": "&lt;", ">": "&gt;",
+    '"': "&quot;", "'": "&#39;"
+  })[c]);
 }
 
-// Demo money transfer
-document.getElementById("sendForm").addEventListener("submit", event => {
-  event.preventDefault();
+function updateBalance() {
+  document.getElementById("balance").textContent = money(balance);
+}
 
-  const receiver = document.getElementById("receiver").value.trim();
+function preparePayment(title, amount, mobile = "") {
+  amount = Number(amount);
+
+  if (!Number.isSafeInteger(amount) || amount < 1 || amount > balance) {
+    showToast("Amount check karo. Demo balance: " + money(balance));
+    return false;
+  }
+
+  pendingPayment = { title, amount, mobile };
+
+  document.getElementById("confirmName").textContent = title;
+  document.getElementById("confirmMobile").textContent =
+    mobile ? "Mobile: " + mobile : "Demo bill";
+  document.getElementById("confirmAmount").textContent = money(amount);
+  document.getElementById("demoPin").value = "";
+
+  showPage("confirm");
+  return true;
+}
+
+document.getElementById("sendForm").addEventListener("submit", e => {
+  e.preventDefault();
+
+  const name = document.getElementById("receiver").value.trim();
   const mobile = document.getElementById("mobile").value.trim();
   const amount = Number(document.getElementById("amount").value);
 
-  if (!receiver || !/^\d{10}$/.test(mobile)) {
+  if (!name || !/^[0-9]{10}$/.test(mobile)) {
     showToast("Name aur 10-digit mobile number check karo.");
     return;
   }
 
-  if (!Number.isFinite(amount) || amount <= 0 || amount > balance) {
-    showToast("Demo balance ya amount check karo.");
-    return;
-  }
-
-  addTransaction("To " + receiver, amount, "debit");
-
-  event.target.reset();
-  showPage("home");
-  showToast("Demo payment complete! Real money nahi bheje gaye.");
+  preparePayment(name, amount, mobile);
 });
 
-// Demo recharge and bill payment
-function demoRecharge() {
-  const service = document.getElementById("service").value;
-  const amount = Number(document.getElementById("billAmount").value);
+document.getElementById("pinForm").addEventListener("submit", e => {
+  e.preventDefault();
 
-  if (!Number.isFinite(amount) || amount <= 0 || amount > balance) {
-    showToast("Sahi amount enter karo.");
+  if (!pendingPayment) {
+    showToast("Pehle demo payment shuru karo.");
+    showPage("send");
     return;
   }
 
-  addTransaction(service, amount, "debit");
+  if (document.getElementById("demoPin").value !== DEMO_PIN) {
+    showToast("Demo PIN galat hai. Practice PIN: 1234");
+    return;
+  }
 
-  document.getElementById("billAmount").value = "";
-  showPage("home");
-  showToast("Demo bill payment complete. Koi asli payment nahi hui.");
-}
+  if (pendingPayment.amount > balance) {
+    showToast("Demo balance kam hai.");
+    showPage("home");
+    return;
+  }
 
-// Reset demo account
-function resetDemo() {
-  const confirmed = confirm(
-    "Demo balance ₹10,000 par reset karein aur history clear karein?"
-  );
+  // Demo-only transaction; no external payment is made.
+  const payment = { ...pendingPayment };
+  balance -= payment.amount;
 
-  if (!confirmed) return;
+  const tx = {
+    id: "DEMO" + Date.now(),
+    title: payment.title,
+    amount: payment.amount,
+    date: new Date().toLocaleString("en-IN"),
+    status: "Demo Successful"
+  };
 
-  balance = STARTING_BALANCE;
-  transactions = [];
+  transactions.unshift(tx);
+  pendingPayment = null;
+
+  document.getElementById("successAmount").textContent = money(payment.amount);
+  document.getElementById("successName").textContent = "To: " + payment.title;
+  document.getElementById("successId").textContent = "Demo ID: " + tx.id;
 
   updateBalance();
   renderTransactions();
-  showPage("home");
-  showToast("Demo account reset ho gaya.");
+  showPage("success");
+});
+
+function prepareRecharge() {
+  const service = document.getElementById("service").value;
+  const amount = Number(document.getElementById("billAmount").value);
+  preparePayment(service, amount);
 }
 
-// Initial screen
+function renderTransactions() {
+  const html = transactions.length
+    ? transactions.map(tx => `
+      <div class="transaction">
+        <div class="tx-info">
+          <strong>${escapeHTML(tx.title)}</strong>
+          <small>${escapeHTML(tx.date)} · DEMO ONLY</small>
+          <small>${escapeHTML(tx.id)}</small>
+        </div>
+        <div class="tx-amount debit">-${money(tx.amount)}</div>
+      </div>`).join("")
+    : '<p class="empty">No demo transactions yet.</p>';
+
+  document.getElementById("recentTransactions").innerHTML =
+    transactions.slice(0, 3).length
+      ? transactions.slice(0, 3).map(tx => `
+        <div class="transaction">
+          <div class="tx-info">
+            <strong>${escapeHTML(tx.title)}</strong>
+            <small>${escapeHTML(tx.date)}</small>
+          </div>
+          <div class="tx-amount debit">-${money(tx.amount)}</div>
+        </div>`).join("")
+      : '<p class="empty">No transactions yet.</p>';
+
+  document.getElementById("allTransactions").innerHTML = html;
+}
+
+function selectService(service) {
+  document.getElementById("service").value = service;
+  showPage("recharge");
+}
+
+function resetDemo() {
+  if (!confirm("Reset balance and clear demo history?")) return;
+
+  balance = STARTING_BALANCE;
+  transactions = [];
+  pendingPayment = null;
+  updateBalance();
+  renderTransactions();
+  showPage("home");
+  showToast("Demo data reset ho gaya.");
+}
+
+// QR scanner: requires HTTPS and browser support for BarcodeDetector.
+async function startScanner() {
+  const video = document.getElementById("qrVideo");
+  const result = document.getElementById("qrResult");
+
+  if (!navigator.mediaDevices?.getUserMedia) {
+    result.textContent = "Camera ke liye HTTPS website ko browser mein kholo.";
+    return;
+  }
+
+  if (!("BarcodeDetector" in window)) {
+    result.textContent = "Is browser mein QR detection supported nahi hai.";
+    return;
+  }
+
+  try {
+    const detector = new BarcodeDetector({ formats: ["qr_code"] });
+    cameraStream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: "environment" },
+      audio: false
+    });
+
+    video.srcObject = cameraStream;
+    await video.play();
+    scanning = true;
+    result.textContent = "QR ko camera ke saamne rakho.";
+
+    async function scan() {
+      if (!scanning) return;
+
+      try {
+        const codes = await detector.detect(video);
+        if (codes.length) {
+          scanning = false;
+          result.textContent = "QR read hua: " + codes[0].rawValue +
+            " — koi payment nahi hui.";
+          stopScanner();
+          return;
+        }
+      } catch (_) {}
+
+      if (scanning) scanFrame = requestAnimationFrame(scan);
+    }
+
+    scan();
+  } catch (_) {
+    result.textContent = "Camera nahi khul saka. Camera permission check karo.";
+    stopScanner();
+  }
+}
+
+function stopScanner() {
+  scanning = false;
+
+  if (scanFrame) cancelAnimationFrame(scanFrame);
+  scanFrame = null;
+
+  if (cameraStream) {
+    cameraStream.getTracks().forEach(track => track.stop());
+    cameraStream = null;
+  }
+
+  const video = document.getElementById("qrVideo");
+  if (video) video.srcObject = null;
+}
+
 updateBalance();
 renderTransactions();
 showPage("home");
