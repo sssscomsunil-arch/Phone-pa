@@ -3,177 +3,167 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#6739b7">
-  <meta name="description" content="PayDemo - A demo payment app for practice">
-  <title>PayDemo - Demo Payments</title>
+  <meta name="description" content="PayDemo practice app. No real payments.">
+  <title>PayDemo</title>
   <link rel="stylesheet" href="style.css">
   <link rel="manifest" href="manifest.json">
 </head>
 <body>
+<header class="topbar">
+  <div class="brand"><span class="logo">P</span><span>PayDemo</span></div>
+  <button class="profile-btn" onclick="showPage('profile')">👤</button>
+</header>
 
-  <header class="topbar">
-    <div class="brand">
-      <span class="logo">P</span>
-      <span>PayDemo</span>
+<main>
+  <div class="demo-banner">DEMO APP • NO REAL MONEY</div>
+
+  <section id="home" class="page active">
+    <div class="balance-card">
+      <p>Demo Wallet Balance</p>
+      <h1 id="balance">₹10,000</h1>
+      <small>Practice transactions only</small>
     </div>
-    <button class="profile-btn" onclick="showPage('profile')">👤</button>
-  </header>
 
-  <main>
-    <!-- HOME -->
-    <section id="home" class="page active">
-      <div class="demo-banner">DEMO APP • NO REAL MONEY</div>
+    <div class="section-heading">Money Transfers</div>
+    <div class="action-grid">
+      <button class="action" onclick="showPage('send')"><span>👤</span>To Mobile</button>
+      <button class="action" onclick="showPage('qr')"><span>▦</span>Scan QR</button>
+      <button class="action" onclick="showPage('send')"><span>🏦</span>Bank Transfer</button>
+      <button class="action" onclick="showPage('history')"><span>📜</span>History</button>
+    </div>
 
-      <div class="balance-card">
-        <p>Demo Wallet Balance</p>
-        <h1 id="balance">₹10,000</h1>
-        <small>Practice transactions only</small>
-      </div>
+    <div class="section-heading">Recharge & Bills</div>
+    <div class="action-grid">
+      <button class="action" onclick="selectService('Mobile Recharge')"><span>📱</span>Mobile</button>
+      <button class="action" onclick="selectService('Electricity Bill')"><span>💡</span>Electricity</button>
+      <button class="action" onclick="selectService('DTH Recharge')"><span>📺</span>DTH</button>
+      <button class="action" onclick="selectService('Internet Bill')"><span>🌐</span>Internet</button>
+    </div>
 
-      <div class="section-heading">Money Transfers</div>
-      <div class="action-grid">
-        <button class="action" onclick="showPage('send')">
-          <span>👤</span>To Mobile
-        </button>
-        <button class="action" onclick="showPage('qr')">
-          <span>▦</span>Scan QR
-        </button>
-        <button class="action" onclick="showPage('send')">
-          <span>🏦</span>Bank Transfer
-        </button>
-        <button class="action" onclick="showPage('history')">
-          <span>📜</span>History
-        </button>
-      </div>
+    <div class="section-heading">Recent Transactions</div>
+    <div id="recentTransactions" class="transaction-list"></div>
+  </section>
 
-      <div class="section-heading">Recharge & Bills</div>
-      <div class="action-grid">
-        <button class="action" onclick="showPage('recharge')">
-          <span>📱</span>Mobile Recharge
-        </button>
-        <button class="action" onclick="showPage('recharge')">
-          <span>💡</span>Electricity
-        </button>
-        <button class="action" onclick="showPage('recharge')">
-          <span>📺</span>DTH
-        </button>
-        <button class="action" onclick="showPage('recharge')">
-          <span>🌐</span>Internet
-        </button>
-      </div>
+  <section id="send" class="page">
+    <button class="back-btn" onclick="showPage('home')">← Back</button>
+    <h2>Send Demo Money</h2>
+    <p class="muted">Practice only. No real money will be sent.</p>
+    <form id="sendForm">
+      <label>Receiver Name</label>
+      <input id="receiver" required maxlength="60" placeholder="Enter name">
+      <label>Mobile Number</label>
+      <input id="mobile" required type="tel" inputmode="numeric"
+        pattern="[0-9]{10}" maxlength="10" placeholder="10-digit number">
+      <label>Amount (₹)</label>
+      <input id="amount" required type="number" min="1" max="10000"
+        step="1" placeholder="Enter amount">
+      <button class="primary-btn" type="submit">Continue</button>
+    </form>
+  </section>
 
-      <div class="section-heading">Recent Transactions</div>
-      <div id="recentTransactions" class="transaction-list">
-        <p class="empty">No transactions yet.</p>
-      </div>
-    </section>
+  <section id="confirm" class="page">
+    <button class="back-btn" onclick="showPage('send')">← Back</button>
+    <h2>Confirm Payment</h2>
+    <div class="payment-card">
+      <p>Paying to</p>
+      <h3 id="confirmName">Demo User</h3>
+      <p id="confirmMobile" class="muted"></p>
+      <h1 id="confirmAmount">₹0</h1>
+      <p class="notice">Demo transaction only. No bank transfer.</p>
+    </div>
+    <button class="primary-btn" onclick="showPage('pin')">Confirm & Continue</button>
+    <button class="secondary-btn" onclick="showPage('send')">Cancel</button>
+  </section>
 
-    <!-- SEND MONEY -->
-    <section id="send" class="page">
-      <button class="back-btn" onclick="showPage('home')">← Back</button>
-      <h2>Send Demo Money</h2>
-      <p class="muted">This will only change your demo balance.</p>
+  <section id="pin" class="page">
+    <button class="back-btn" onclick="showPage('confirm')">← Back</button>
+    <h2>Demo PIN Verification</h2>
+    <p class="muted">Enter the demo PIN 1234 to continue. This is NOT your real UPI PIN.</p>
+    <form id="pinForm">
+      <label>4-digit Demo PIN</label>
+      <input id="demoPin" type="password" inputmode="numeric"
+        pattern="[0-9]{4}" maxlength="4" required placeholder="Enter 1234">
+      <button class="primary-btn" type="submit">Verify Demo PIN</button>
+    </form>
+    <p class="notice">Never enter your real banking PIN in this demo app.</p>
+  </section>
 
-      <form id="sendForm">
-        <label for="receiver">Receiver Name</label>
-        <input id="receiver" type="text" placeholder="Enter name" required>
+  <section id="success" class="page">
+    <div class="success-card">
+      <div class="success-icon">✓</div>
+      <h2>Demo Payment Successful!</h2>
+      <h1 id="successAmount">₹0</h1>
+      <p id="successName"></p>
+      <p id="successId" class="muted"></p>
+      <div class="demo-banner">SIMULATED • NOT A REAL PAYMENT</div>
+    </div>
+    <button class="primary-btn" onclick="showPage('home')">Go to Home</button>
+    <button class="secondary-btn" onclick="showPage('history')">View History</button>
+  </section>
 
-        <label for="mobile">Mobile Number</label>
-        <input id="mobile" type="tel" inputmode="numeric"
-          placeholder="10-digit number" pattern="[0-9]{10}" required>
+  <section id="qr" class="page">
+    <button class="back-btn" onclick="stopScanner();showPage('home')">← Back</button>
+    <h2>Demo QR Scanner</h2>
+    <p class="muted">Scan a QR to read its contents. Scanning will not initiate a real payment.</p>
+    <video id="qrVideo" class="qr-video" playsinline></video>
+    <button id="startScanner" class="primary-btn" onclick="startScanner()">Open Camera & Scan</button>
+    <p id="qrResult" class="notice">Camera permission is required.</p>
+    <button class="secondary-btn" onclick="stopScanner()">Stop Camera</button>
+  </section>
 
-        <label for="amount">Amount (₹)</label>
-        <input id="amount" type="number" min="1" max="10000"
-          placeholder="Enter amount" required>
+  <section id="history" class="page">
+    <button class="back-btn" onclick="showPage('home')">← Back</button>
+    <h2>Transaction History</h2>
+    <div id="allTransactions" class="transaction-list"></div>
+  </section>
 
-        <button class="primary-btn" type="submit">Pay Demo Amount</button>
-      </form>
-      <p class="notice">Demo only. No real UPI or bank transfer.</p>
-    </section>
+  <section id="recharge" class="page">
+    <button class="back-btn" onclick="showPage('home')">← Back</button>
+    <h2>Demo Recharge & Bills</h2>
+    <label>Service</label>
+    <select id="service">
+      <option>Mobile Recharge</option>
+      <option>Electricity Bill</option>
+      <option>DTH Recharge</option>
+      <option>Internet Bill</option>
+    </select>
+    <label>Amount (₹)</label>
+    <input id="billAmount" type="number" min="1" max="10000" placeholder="Enter amount">
+    <button class="primary-btn" onclick="prepareRecharge()">Continue</button>
+  </section>
 
-    <!-- QR -->
-    <section id="qr" class="page">
-      <button class="back-btn" onclick="showPage('home')">← Back</button>
-      <h2>Demo QR Scanner</h2>
-      <div class="qr-box">▦</div>
-      <p class="muted">QR scanning is not connected to real payments.</p>
-      <button class="primary-btn" onclick="showPage('send')">
-        Try Demo Payment
-      </button>
-    </section>
+  <section id="profile" class="page">
+    <button class="back-btn" onclick="showPage('home')">← Back</button>
+    <h2>My Profile</h2>
+    <div class="profile-card">
+      <div class="avatar">👤</div>
+      <h3>PayDemo User</h3>
+      <p class="muted">Demo account</p>
+    </div>
+    <div class="menu-item">💜 App: PayDemo</div>
+    <div class="menu-item">🔒 Real payments: Disabled</div>
+    <button class="secondary-btn" onclick="resetDemo()">Reset Demo Data</button>
+  </section>
+</main>
 
-    <!-- HISTORY -->
-    <section id="history" class="page">
-      <button class="back-btn" onclick="showPage('home')">← Back</button>
-      <h2>Transaction History</h2>
-      <div id="allTransactions" class="transaction-list">
-        <p class="empty">No transactions yet.</p>
-      </div>
-    </section>
+<nav class="bottom-nav">
+  <button class="nav-item active" data-page="home" onclick="showPage('home')">🏠<span>Home</span></button>
+  <button class="nav-item" data-page="send" onclick="showPage('send')">💸<span>Pay</span></button>
+  <button class="nav-item" data-page="history" onclick="showPage('history')">📜<span>History</span></button>
+  <button class="nav-item" data-page="profile" onclick="showPage('profile')">👤<span>Profile</span></button>
+</nav>
 
-    <!-- RECHARGE -->
-    <section id="recharge" class="page">
-      <button class="back-btn" onclick="showPage('home')">← Back</button>
-      <h2>Demo Recharge & Bills</h2>
-      <p class="muted">Choose a service to simulate a transaction.</p>
+<div id="toast" class="toast" role="status"></div>
 
-      <label for="service">Select Service</label>
-      <select id="service">
-        <option>Mobile Recharge</option>
-        <option>Electricity Bill</option>
-        <option>DTH Recharge</option>
-        <option>Internet Bill</option>
-      </select>
-
-      <label for="billAmount">Amount (₹)</label>
-      <input id="billAmount" type="number" min="1" max="10000"
-        placeholder="Enter amount">
-
-      <button class="primary-btn" onclick="demoRecharge()">
-        Pay Demo Bill
-      </button>
-    </section>
-
-    <!-- PROFILE -->
-    <section id="profile" class="page">
-      <button class="back-btn" onclick="showPage('home')">← Back</button>
-      <h2>My Profile</h2>
-      <div class="profile-card">
-        <div class="avatar">👤</div>
-        <h3>PayDemo User</h3>
-        <p class="muted">Demo account</p>
-      </div>
-      <div class="menu-item">💜 App: PayDemo</div>
-      <div class="menu-item">🔒 Real payments: Disabled</div>
-      <button class="secondary-btn" onclick="resetDemo()">
-        Reset Demo Data
-      </button>
-    </section>
-  </main>
-
-  <!-- BOTTOM NAVIGATION -->
-  <nav class="bottom-nav">
-    <button class="nav-item active" data-page="home"
-      onclick="showPage('home')">🏠<span>Home</span></button>
-    <button class="nav-item" data-page="send"
-      onclick="showPage('send')">💸<span>Pay</span></button>
-    <button class="nav-item" data-page="history"
-      onclick="showPage('history')">📜<span>History</span></button>
-    <button class="nav-item" data-page="profile"
-      onclick="showPage('profile')">👤<span>Profile</span></button>
-  </nav>
-
-  <div id="toast" class="toast" role="status"></div>
-
-  <script src="script.js"></script>
-  <script>
-    if ("serviceWorker" in navigator && location.protocol.startsWith("http")) {
-      window.addEventListener("load", () => {
-        navigator.serviceWorker.register("./service-worker.js")
-          .catch(() => {});
-      });
-    }
-  </script>
+<script src="script.js"></script>
+<script>
+if ("serviceWorker" in navigator && location.protocol === "https:") {
+  window.addEventListener("load", () =>
+    navigator.serviceWorker.register("./service-worker.js").catch(() => {})
+  );
+}
+</script>
 </body>
 </html>
