@@ -442,3 +442,61 @@ input:focus, select:focus {
     font-size: 10px;
   }
 }
+
+/* Updated demo payment screens */
+.payment-card,
+.success-card {
+  background: #fff;
+  padding: 22px;
+  border-radius: 18px;
+  margin: 20px 0;
+  text-align: center;
+  box-shadow: 0 4px 18px #6739b710;
+}
+
+.payment-card h1,
+.success-card h1 {
+  color: #6739b7;
+  margin: 20px 0;
+  font-size: 30px;
+}
+
+.payment-card h3 {
+  margin-top: 12px;
+  overflow-wrap: anywhere;
+}
+
+.success-icon {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: #e1f6e9;
+  color: #16884a;
+  display: grid;
+  place-items: center;
+  font-size: 42px;
+  font-weight: bold;
+  margin: 10px auto 20px;
+}
+
+.qr-video {
+  display: block;
+  width: 100%;
+  min-height: 220px;
+  max-height: 350px;
+  object-fit: cover;
+  background: #17131d;
+  border-radius: 16px;
+  margin: 18px 0;
+}
+
+#confirm .notice,
+#pin .notice,
+#success .demo-banner {
+  text-align: center;
+}
+
+button:focus-visible {
+  outline: 3px solid #b99af0;
+  outline-offset: 3px;
+}
