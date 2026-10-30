@@ -1,6 +1,5 @@
-
 const STARTING_BALANCE = 10000;
-const DEMO_PIN = "1234";
+const USER_PIN = "1234";
 
 let balance = STARTING_BALANCE;
 let transactions = [];
@@ -51,7 +50,7 @@ function preparePayment(title, amount, mobile = "") {
   amount = Number(amount);
 
   if (!Number.isSafeInteger(amount) || amount < 1 || amount > balance) {
-    showToast("Amount check karo. Demo balance: " + money(balance));
+    showToast("Amount check karo. Available balance: " + money(balance));
     return false;
   }
 
@@ -59,7 +58,7 @@ function preparePayment(title, amount, mobile = "") {
 
   document.getElementById("confirmName").textContent = title;
   document.getElementById("confirmMobile").textContent =
-    mobile ? "Mobile: " + mobile : "Demo bill";
+    mobile ? "Mobile: " + mobile : "Bill payment";
   document.getElementById("confirmAmount").textContent = money(amount);
   document.getElementById("demoPin").value = "";
 
@@ -86,32 +85,31 @@ document.getElementById("pinForm").addEventListener("submit", e => {
   e.preventDefault();
 
   if (!pendingPayment) {
-    showToast("Pehle demo payment shuru karo.");
+    showToast("Pehle payment shuru karo.");
     showPage("send");
     return;
   }
 
-  if (document.getElementById("demoPin").value !== DEMO_PIN) {
-    showToast("Demo PIN galat hai. Practice PIN: 1234");
+  if (document.getElementById("demoPin").value !== USER_PIN) {
+    showToast("PIN galat hai.");
     return;
   }
 
   if (pendingPayment.amount > balance) {
-    showToast("Demo balance kam hai.");
+    showToast("Balance kam hai.");
     showPage("home");
     return;
   }
 
-  // Demo-only transaction; no external payment is made.
   const payment = { ...pendingPayment };
   balance -= payment.amount;
 
   const tx = {
-    id: "DEMO" + Date.now(),
+    id: "TXN" + Date.now(),
     title: payment.title,
     amount: payment.amount,
     date: new Date().toLocaleString("en-IN"),
-    status: "Demo Successful"
+    status: "Successful"
   };
 
   transactions.unshift(tx);
@@ -119,7 +117,7 @@ document.getElementById("pinForm").addEventListener("submit", e => {
 
   document.getElementById("successAmount").textContent = money(payment.amount);
   document.getElementById("successName").textContent = "To: " + payment.title;
-  document.getElementById("successId").textContent = "Demo ID: " + tx.id;
+  document.getElementById("successId").textContent = "Transaction ID: " + tx.id;
 
   updateBalance();
   renderTransactions();
@@ -138,12 +136,12 @@ function renderTransactions() {
       <div class="transaction">
         <div class="tx-info">
           <strong>${escapeHTML(tx.title)}</strong>
-          <small>${escapeHTML(tx.date)} · DEMO ONLY</small>
+          <small>${escapeHTML(tx.date)}</small>
           <small>${escapeHTML(tx.id)}</small>
         </div>
         <div class="tx-amount debit">-${money(tx.amount)}</div>
       </div>`).join("")
-    : '<p class="empty">No demo transactions yet.</p>';
+    : '<p class="empty">No transactions yet.</p>';
 
   document.getElementById("recentTransactions").innerHTML =
     transactions.slice(0, 3).length
@@ -166,7 +164,7 @@ function selectService(service) {
 }
 
 function resetDemo() {
-  if (!confirm("Reset balance and clear demo history?")) return;
+  if (!confirm("Reset balance and clear history?")) return;
 
   balance = STARTING_BALANCE;
   transactions = [];
@@ -174,10 +172,9 @@ function resetDemo() {
   updateBalance();
   renderTransactions();
   showPage("home");
-  showToast("Demo data reset ho gaya.");
+  showToast("Data reset ho gaya.");
 }
 
-// QR scanner: requires HTTPS and browser support for BarcodeDetector.
 async function startScanner() {
   const video = document.getElementById("qrVideo");
   const result = document.getElementById("qrResult");
@@ -211,8 +208,7 @@ async function startScanner() {
         const codes = await detector.detect(video);
         if (codes.length) {
           scanning = false;
-          result.textContent = "QR read hua: " + codes[0].rawValue +
-            " — koi payment nahi hui.";
+          result.textContent = "QR read hua: " + codes[0].rawValue;
           stopScanner();
           return;
         }
