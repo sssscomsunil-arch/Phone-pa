@@ -1,9 +1,8 @@
-
 {
   "id": "./",
-  "name": "PayDemo - Demo Payment App",
-  "short_name": "PayDemo",
-  "description": "A demo payment app for practice. No real money transfers.",
+  "name": "PayApp - Payment App",
+  "short_name": "PayApp",
+  "description": "A secure payment app.",
   "start_url": "./",
   "scope": "./",
   "display": "standalone",
