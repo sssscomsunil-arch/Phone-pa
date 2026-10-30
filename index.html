@@ -1,29 +1,28 @@
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <meta name="theme-color" content="#6739b7">
-  <meta name="description" content="PayDemo practice app. No real payments.">
-  <title>PayDemo</title>
+  <meta name="description" content="Pay practice app.">
+  <title>PayApp</title>
   <link rel="stylesheet" href="style.css">
   <link rel="manifest" href="manifest.json">
 </head>
 <body>
 <header class="topbar">
-  <div class="brand"><span class="logo">P</span><span>PayDemo</span></div>
+  <div class="brand"><span class="logo">P</span><span>PayApp</span></div>
   <button class="profile-btn" onclick="showPage('profile')">👤</button>
 </header>
 
 <main>
-  <div class="demo-banner">DEMO APP • NO REAL MONEY</div>
+  <div class="demo-banner">PAYMENT APP</div>
 
   <section id="home" class="page active">
     <div class="balance-card">
-      <p>Demo Wallet Balance</p>
+      <p>Wallet Balance</p>
       <h1 id="balance">₹10,000</h1>
-      <small>Practice transactions only</small>
+      <small>Transactions only</small>
     </div>
 
     <div class="section-heading">Money Transfers</div>
@@ -48,8 +47,8 @@
 
   <section id="send" class="page">
     <button class="back-btn" onclick="showPage('home')">← Back</button>
-    <h2>Send Demo Money</h2>
-    <p class="muted">Practice only. No real money will be sent.</p>
+    <h2>Send Money</h2>
+    <p class="muted">Send funds securely.</p>
     <form id="sendForm">
       <label>Receiver Name</label>
       <input id="receiver" required maxlength="60" placeholder="Enter name">
@@ -68,10 +67,10 @@
     <h2>Confirm Payment</h2>
     <div class="payment-card">
       <p>Paying to</p>
-      <h3 id="confirmName">Demo User</h3>
+      <h3 id="confirmName">User</h3>
       <p id="confirmMobile" class="muted"></p>
       <h1 id="confirmAmount">₹0</h1>
-      <p class="notice">Demo transaction only. No bank transfer.</p>
+      <p class="notice">Transaction confirmation.</p>
     </div>
     <button class="primary-btn" onclick="showPage('pin')">Confirm & Continue</button>
     <button class="secondary-btn" onclick="showPage('send')">Cancel</button>
@@ -79,25 +78,25 @@
 
   <section id="pin" class="page">
     <button class="back-btn" onclick="showPage('confirm')">← Back</button>
-    <h2>Demo PIN Verification</h2>
-    <p class="muted">Enter the demo PIN 1234 to continue. This is NOT your real UPI PIN.</p>
+    <h2>PIN Verification</h2>
+    <p class="muted">Enter the PIN to continue.</p>
     <form id="pinForm">
-      <label>4-digit Demo PIN</label>
+      <label>4-digit PIN</label>
       <input id="demoPin" type="password" inputmode="numeric"
-        pattern="[0-9]{4}" maxlength="4" required placeholder="Enter 1234">
-      <button class="primary-btn" type="submit">Verify Demo PIN</button>
+        pattern="[0-9]{4}" maxlength="4" required placeholder="Enter PIN">
+      <button class="primary-btn" type="submit">Verify PIN</button>
     </form>
-    <p class="notice">Never enter your real banking PIN in this demo app.</p>
+    <p class="notice">Keep your PIN secure.</p>
   </section>
 
   <section id="success" class="page">
     <div class="success-card">
       <div class="success-icon">✓</div>
-      <h2>Demo Payment Successful!</h2>
+      <h2>Payment Successful!</h2>
       <h1 id="successAmount">₹0</h1>
       <p id="successName"></p>
       <p id="successId" class="muted"></p>
-      <div class="demo-banner">SIMULATED • NOT A REAL PAYMENT</div>
+      <div class="demo-banner">SUCCESSFUL TRANSACTION</div>
     </div>
     <button class="primary-btn" onclick="showPage('home')">Go to Home</button>
     <button class="secondary-btn" onclick="showPage('history')">View History</button>
@@ -105,8 +104,8 @@
 
   <section id="qr" class="page">
     <button class="back-btn" onclick="stopScanner();showPage('home')">← Back</button>
-    <h2>Demo QR Scanner</h2>
-    <p class="muted">Scan a QR to read its contents. Scanning will not initiate a real payment.</p>
+    <h2>QR Scanner</h2>
+    <p class="muted">Scan a QR to read its contents.</p>
     <video id="qrVideo" class="qr-video" playsinline></video>
     <button id="startScanner" class="primary-btn" onclick="startScanner()">Open Camera & Scan</button>
     <p id="qrResult" class="notice">Camera permission is required.</p>
@@ -121,7 +120,7 @@
 
   <section id="recharge" class="page">
     <button class="back-btn" onclick="showPage('home')">← Back</button>
-    <h2>Demo Recharge & Bills</h2>
+    <h2>Recharge & Bills</h2>
     <label>Service</label>
     <select id="service">
       <option>Mobile Recharge</option>
@@ -139,12 +138,12 @@
     <h2>My Profile</h2>
     <div class="profile-card">
       <div class="avatar">👤</div>
-      <h3>PayDemo User</h3>
-      <p class="muted">Demo account</p>
+      <h3>User</h3>
+      <p class="muted">Account</p>
     </div>
-    <div class="menu-item">💜 App: PayDemo</div>
-    <div class="menu-item">🔒 Real payments: Disabled</div>
-    <button class="secondary-btn" onclick="resetDemo()">Reset Demo Data</button>
+    <div class="menu-item">💜 App: PayApp</div>
+    <div class="menu-item">🔒 Payments: Active</div>
+    <button class="secondary-btn" onclick="resetDemo()">Reset Data</button>
   </section>
 </main>
 
